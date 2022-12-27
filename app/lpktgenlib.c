@@ -3077,7 +3077,6 @@ pktgen_portStats(lua_State *L)
 static void
 port_info(lua_State *L, port_info_t *info)
 {
-    struct rte_eth_dev_info dev = {0};
     eth_stats_t stats = {0};
     pkt_stats_t pkt_stats = {0};
     port_sizes_t sizes = {0};
@@ -3205,21 +3204,6 @@ port_info(lua_State *L, port_info_t *info)
     inet_mtoa(buff, sizeof(buff), &pkt->eth_src_addr);
     setf_string(L, "src_mac", buff);
     lua_rawset(L, -3);
-
-    rte_eth_dev_info_get(info->pid, &dev);
-    const struct rte_bus *bus;
-    if (dev.device)
-        bus = rte_dev_bus(dev.device);
-    else
-        bus = NULL;
-    if (bus && !strcmp(bus->name, "pci")) {
-        struct rte_pci_device *pci_dev = RTE_DEV_TO_PCI(dev.device);
-        snprintf(buff, sizeof(buff), "%04x:%04x/%02x:%02d.%d", pci_dev->id.vendor_id,
-                 pci_dev->id.device_id, pci_dev->addr.bus, pci_dev->addr.devid,
-                 pci_dev->addr.function);
-    } else
-        snprintf(buff, sizeof(buff), "%04x:%04x/%02x:%02d.%d", 0, 0, 0, 0, 0);
-    setf_string(L, "pci_vendor", buff);
 
     /*------------------------------------*/
     lua_pushstring(L, "tx_debug");
